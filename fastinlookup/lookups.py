@@ -4,8 +4,13 @@ from django.db.models.fields.related import ForeignObject
 
 
 @Field.register_lookup
-class EffLookup(Lookup):
+class IneffLookup(Lookup):
     lookup_name = "ineff"
+
+    def get_prep_lookup(self):
+        pl = super().get_prep_lookup()
+        print(pl)
+        return pl
 
     def as_sql(self, compiler, connection):
         lhs, lhs_params = self.process_lhs(compiler, connection)
@@ -15,7 +20,7 @@ class EffLookup(Lookup):
 
 
 @ForeignObject.register_lookup
-class ForeignEffInLookup(Lookup):
+class ForeignIneffLookup(Lookup):
     lookup_name = "ineff"
 
     def as_sql(self, compiler, connection):

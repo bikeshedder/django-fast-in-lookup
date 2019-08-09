@@ -9,7 +9,7 @@ from . import lookups
 
 ITEM_COUNT=10
 
-class EffInTestCase(TestCase):
+class IneffTestCase(TestCase):
 
     def setUp(self):
         self.item_names = [f'Item #{i}' for i in range(1, ITEM_COUNT+1)]
@@ -18,6 +18,9 @@ class EffInTestCase(TestCase):
         self.item_ids = [item.id for item in self.items]
 
     def test_in_pk(self):
+        self.assertEqual(len(Item.objects.filter(pk__in=self.item_ids)), ITEM_COUNT)
+
+    def test_in_id(self):
         self.assertEqual(len(Item.objects.filter(id__in=self.item_ids)), ITEM_COUNT)
 
     def test_in_name(self):
@@ -27,6 +30,12 @@ class EffInTestCase(TestCase):
         self.assertEqual(len(Item.objects.filter(fk__in=self.item_ids)), ITEM_COUNT)
 
     def test_ineff_pk(self):
+        with self.assertNumQueries(1):
+            items = list(Item.objects.filter(pk__ineff=self.item_ids))
+        self.assertEqual(len(items), ITEM_COUNT)
+        self.assertIn('unnest(', connection.queries[-1]['sql'])
+
+    def test_ineff_id(self):
         with self.assertNumQueries(1):
             items = list(Item.objects.filter(id__ineff=self.item_ids))
         self.assertEqual(len(items), ITEM_COUNT)
