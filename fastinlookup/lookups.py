@@ -1,6 +1,7 @@
 from django.db.models import Lookup
 from django.db.models.fields import Field
 from django.db.models.fields.related import ForeignObject
+from django.db.models.lookups import In
 
 
 @Field.register_lookup
@@ -8,9 +9,8 @@ class IneffLookup(Lookup):
     lookup_name = "ineff"
 
     def get_prep_lookup(self):
-        pl = super().get_prep_lookup()
-        print(pl)
-        return pl
+        # Do not run the usual conversion code
+        return self.rhs
 
     def as_sql(self, compiler, connection):
         lhs, lhs_params = self.process_lhs(compiler, connection)

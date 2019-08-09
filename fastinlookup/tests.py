@@ -26,7 +26,10 @@ class IneffTestCase(TestCase):
     def test_in_name(self):
         self.assertEqual(len(Item.objects.filter(name__in=self.item_names)), ITEM_COUNT)
 
-    def test_in_fk(self):
+    def test_in_fk_id(self):
+        self.assertEqual(len(Item.objects.filter(fk__in=self.item_ids)), ITEM_COUNT)
+
+    def test_in_fk_obj(self):
         self.assertEqual(len(Item.objects.filter(fk__in=self.item_ids)), ITEM_COUNT)
 
     def test_ineff_pk(self):
@@ -47,8 +50,14 @@ class IneffTestCase(TestCase):
         self.assertEqual(len(items), ITEM_COUNT)
         self.assertIn('unnest(', connection.queries[-1]['sql'])
 
-    def test_ineff_fk(self):
+    def test_ineff_fk_id(self):
         with self.assertNumQueries(1):
             items = list(Item.objects.filter(fk__ineff=self.item_ids))
+        self.assertEqual(len(items), ITEM_COUNT)
+        self.assertIn('unnest(', connection.queries[-1]['sql'])
+
+    def test_ineff_fk_obj(self):
+        with self.assertNumQueries(1):
+            items = list(Item.objects.filter(fk__ineff=self.items))
         self.assertEqual(len(items), ITEM_COUNT)
         self.assertIn('unnest(', connection.queries[-1]['sql'])
